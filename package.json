@@ -1,0 +1,18 @@
+{
+  "name": "quotes-generator",
+  "version": "1.0.0",
+  "description": "Aesthetic quote image generator with highlight effect and vintage style",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.49",
+    "axios": "^1.6.7"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "license": "MIT"
+}
