@@ -12,7 +12,7 @@
     "axios": "^1.6.7"
   },
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
   },
   "license": "MIT"
 }
