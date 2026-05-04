@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Quotes Generator | Abadikan Kata-katamu</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .serif-header {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+        body {
+            background-color: #FAF9F6;
+            color: #1A1A1A;
+        }
+        .vintage-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E6E4DC;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: box-shadow 0.2s ease;
+        }
+        .vintage-card:hover {
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
+        }
+        .btn-primary {
+            background-color: #D4E157;
+            color: #1A1A1A;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #C5D64F;
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            border: 1px solid #D4E157;
+            background-color: transparent;
+            color: #1A1A1A;
+            transition: all 0.2s ease;
+        }
+        .btn-outline:hover {
+            background-color: #D4E157;
+            transform: translateY(-1px);
+        }
+        textarea, input {
+            border: 1px solid #E6E4DC;
+            border-radius: 1rem;
+            transition: all 0.2s;
+            background-color: #FFFFFF;
+        }
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #D4E157;
+            box-shadow: 0 0 0 3px rgba(212, 225, 87, 0.2);
+        }
+        .preview-container {
+            background: #F3F1EA;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 320px;
+            border: 1px dashed #DDD9CE;
+            transition: all 0.3s;
+        }
+        /* Animasi loading vintage */
+        .loading-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            text-align: center;
+            padding: 2rem;
+        }
+        .ink-splash {
+            width: 70px;
+            height: 70px;
+            position: relative;
+        }
+        .ink-splash svg {
+            animation: drawInk 1.8s ease-in-out infinite;
+        }
+        @keyframes drawInk {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.2; transform: scale(0.8); }
+        }
+        .loading-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            color: #5B5A56;
+            display: flex;
+            gap: 0.3rem;
+        }
+        .loading-text span {
+            animation: fadeText 1.2s infinite;
+        }
+        .loading-text span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-text span:nth-child(3) { animation-delay: 0.4s; }
+        .loading-text span:nth-child(4) { animation-delay: 0.6s; }
+        .loading-text span:nth-child(5) { animation-delay: 0.8s; }
+        @keyframes fadeText {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        .loader-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .loader-dots div {
+            width: 8px;
+            height: 8px;
+            background-color: #D4E157;
+            border-radius: 50%;
+            animation: bounce 0.6s infinite alternate;
+        }
+        .loader-dots div:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dots div:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            from { transform: translateY(0); opacity: 0.5; }
+            to { transform: translateY(-10px); opacity: 1; }
+        }
+        .highlight-badge {
+            background: #D4E15720;
+            border-left: 3px solid #D4E157;
+            font-size: 0.75rem;
+        }
+        .bracket-helper-btn {
+            background: #F5F4EF;
+            border: 1px solid #E6E4DC;
+            transition: all 0.15s;
+            border-radius: 0.75rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            color: #3B3A36;
+        }
+        .bracket-helper-btn:hover {
+            background: #EBE9E2;
+            border-color: #D4E157;
+            color: #1A1A1A;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <!-- Header -->
+        <div class="text-center mb-10 md:mb-12">
+            <h1 class="serif-header text-4xl md:text-5xl font-semibold tracking-wide text-[#1A1A1A]">Quotes Generator</h1>
+            <p class="text-gray-500 mt-2 text-base md:text-lg italic">Abadikan kata-katamu layaknya tinta di atas kertas</p>
+        </div>
+
+        <!-- Grid 2 Kolom: Form (kiri) | Preview (kanan) -->
+        <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+            <!-- LEFT COLUMN: Form -->
+            <div class="vintage-card p-6 md:p-7">
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-sm font-medium text-gray-700">✍️ Isi Kutipan</label>
+                        <button type="button" id="insertBracketBtn" class="bracket-helper-btn text-xs flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="square-code" class="w-3.5 h-3.5"></i> 
+                            <span>Sisipkan [ ]</span>
+                        </button>
+                    </div>
+                    <textarea id="quoteText" rows="5" class="w-full px-4 py-3 resize-none focus:ring-0" placeholder="Tulis kutipanmu...&#10;Gunakan [kata] untuk efek stabilo/highlight.&#10;Contoh: Hidup itu hanya [satu] [kali] jadi berusahalah menjadi [orang] [yang] [baik] ."></textarea>
+                    <div class="flex items-center gap-2 mt-2 highlight-badge px-3 py-1.5 rounded-lg">
+                        <span class="text-xs font-medium text-[#1A1A1A]/80">💡 Petunjuk:</span>
+                        <span class="text-xs text-gray-600">Ketik <kbd class="px-1 py-0.5 bg-gray-100 rounded text-xs">[</kbd> otomatis jadi <code class="bg-gray-100 px-1 rounded">[]</code> & kursor di tengah. Atau pilih teks lalu tekan tombol <strong class="font-mono">[]</strong>.</span>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">🖋️ Penulis / Author</label>
+                    <input type="text" id="authorName" class="w-full px-4 py-3" placeholder="Someone" value="Someone">
+                </div>
+                <button id="generateBtn" class="btn-primary w-full py-3.5 rounded-xl flex items-center justify-center gap-2 font-medium transition">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i> 
+                    <span>Generate Canvas</span>
+                </button>
+            </div>
+
+            <!-- RIGHT COLUMN: Preview & Actions -->
+            <div class="vintage-card p-6 md:p-7 flex flex-col">
+                <div class="mb-4 flex items-center justify-between">
+                    <h2 class="font-medium text-gray-800 flex items-center gap-2"><i data-lucide="image" class="w-5 h-5 text-[#D4E157]"></i> Pratinjau Hasil</h2>
+                    <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">JPEG · Estetik</span>
+                </div>
+                <div id="previewArea" class="preview-container flex flex-col items-center justify-center p-4 transition-all relative">
+                    <!-- Tempat untuk placeholder, loading, dan gambar -->
+                    <div id="imagePlaceholder" class="text-center py-12">
+                        <i data-lucide="palette" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                        <p class="text-gray-400 text-sm">Hasil kutipanmu akan muncul di sini</p>
+                        <p class="text-xs text-gray-300 mt-1">Klik "Generate Canvas" untuk memulai</p>
+                    </div>
+                    <div id="loadingAnimation" class="loading-animation hidden">
+                        <!-- SVG animasi tinta -->
+                        <div class="ink-splash">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L15 8H9L12 2Z" fill="#D4E157" stroke="#A0A86B" stroke-width="0.5"/>
+                                <path d="M12 22L9 16H15L12 22Z" fill="#D4E157" stroke="#A0A86B" stroke-width="0.5"/>
+                                <circle cx="12" cy="12" r="3" fill="#E3EE9E" stroke="#C5D64F" stroke-width="0.5"/>
+                                <path d="M5 5L8 8M19 5L16 8M5 19L8 16M19 19L16 16" stroke="#C5D64F" stroke-width="0.8" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="loading-text">
+                            <span>M</span><span>e</span><span>n</span><span>u</span><span>l</span><span>i</span><span>s</span>
+                        </div>
+                        <div class="loader-dots">
+                            <div></div><div></div><div></div>
+                        </div>
+                        <p class="text-xs text-gray-400 italic">menggoreskan tinta ke kanvas...</p>
+                    </div>
+                    <div id="generatedImageWrapper" class="hidden w-full">
+                        <img id="quoteImage" class="w-full rounded-lg shadow-sm border border-gray-100" alt="Generated quote canvas">
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button id="downloadBtn" disabled class="flex-1 btn-outline py-2.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        <i data-lucide="download" class="w-4 h-4"></i> Unduh
+                    </button>
+                    <button id="shareBtn" disabled class="flex-1 btn-outline py-2.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        <i data-lucide="share-2" class="w-4 h-4"></i> Bagikan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-16 pt-6 border-t border-[#E6E4DC] text-center text-xs text-gray-400 space-y-1">
+            <p>Developed by Rahmat Dev · Core Engine Script by Ditzz</p>
+            <p class="text-[11px]">© Quotes Generator — Abadikan setiap inspirasi</p>
+        </footer>
+    </main>
+
+    <script>
+        (function() {
+            // ========== BRACKET HELPER ==========
+            const textarea = document.getElementById('quoteText');
+            const insertBtn = document.getElementById('insertBracketBtn');
+
+            function insertBracketsAroundSelection() {
+                if (!textarea) return;
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const selectedText = textarea.value.substring(start, end);
+                const newText = selectedText ? `[${selectedText}]` : '[]';
+                const newStartPos = start + 1;
+                const newEndPos = selectedText ? start + selectedText.length + 2 : start + 1;
+
+                const before = textarea.value.substring(0, start);
+                const after = textarea.value.substring(end);
+                textarea.value = before + newText + after;
+                textarea.setSelectionRange(newStartPos, newEndPos);
+                textarea.focus();
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            if (insertBtn) {
+                insertBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    insertBracketsAroundSelection();
+                });
+            }
+
+            textarea.addEventListener('keydown', (e) => {
+                if (e.key === '[') {
+                    e.preventDefault();
+                    insertBracketsAroundSelection();
+                }
+            });
+
+            // ========== LOGIKA GENERATE + ANIMASI 2-3 DETIK ==========
+            const quoteTextarea = document.getElementById('quoteText');
+            const authorInput = document.getElementById('authorName');
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            const imagePlaceholder = document.getElementById('imagePlaceholder');
+            const loadingAnimation = document.getElementById('loadingAnimation');
+            const imageWrapper = document.getElementById('generatedImageWrapper');
+            const quoteImg = document.getElementById('quoteImage');
+
+            let currentImageBlob = null;
+            let currentImageUrl = null;
+
+            function refreshIcons() {
+                if (window.lucide) lucide.createIcons();
+            }
+            refreshIcons();
+
+            function resetPreview() {
+                if (currentImageUrl) {
+                    URL.revokeObjectURL(currentImageUrl);
+                    currentImageUrl = null;
+                }
+                currentImageBlob = null;
+                imageWrapper.classList.add('hidden');
+                loadingAnimation.classList.add('hidden');
+                imagePlaceholder.classList.remove('hidden');
+                downloadBtn.disabled = true;
+                shareBtn.disabled = true;
+            }
+
+            function displayImage(blob) {
+                if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
+                const url = URL.createObjectURL(blob);
+                currentImageUrl = url;
+                currentImageBlob = blob;
+                quoteImg.src = url;
+                loadingAnimation.classList.add('hidden');
+                imagePlaceholder.classList.add('hidden');
+                imageWrapper.classList.remove('hidden');
+                downloadBtn.disabled = false;
+                shareBtn.disabled = false;
+            }
+
+            // Fungsi loading dengan minimal durasi 2000ms (2 detik) hingga 3000ms jika backend lambat
+            async function withMinDelay(promise, minMs = 2000) {
+                const start = Date.now();
+                const result = await promise;
+                const elapsed = Date.now() - start;
+                if (elapsed < minMs) {
+                    await new Promise(resolve => setTimeout(resolve, minMs - elapsed));
+                }
+                return result;
+            }
+
+            function setLoadingUI(isLoading) {
+                const btnSpan = generateBtn.querySelector('span');
+                const icon = generateBtn.querySelector('i');
+                if (isLoading) {
+                    generateBtn.disabled = true;
+                    generateBtn.classList.add('opacity-70', 'cursor-wait');
+                    btnSpan.innerHTML = 'Memproses...';
+                    if (icon) icon.style.display = 'none';
+                    // Tampilkan animasi loading di preview, sembunyikan placeholder & gambar
+                    imagePlaceholder.classList.add('hidden');
+                    imageWrapper.classList.add('hidden');
+                    loadingAnimation.classList.remove('hidden');
+                } else {
+                    generateBtn.disabled = false;
+                    generateBtn.classList.remove('opacity-70', 'cursor-wait');
+                    btnSpan.innerHTML = 'Generate Canvas';
+                    if (icon) icon.style.display = 'inline-block';
+                    refreshIcons();
+                }
+            }
+
+            async function generateQuoteImage() {
+                let rawText = quoteTextarea.value.trim();
+                if (!rawText) {
+                    alert('❌ Mohon isi kutipan terlebih dahulu.');
+                    return;
+                }
+                const author = authorInput.value.trim() || "Someone";
+
+                // Reset area dan mulai loading
+                resetPreview();  // hide image, show placeholder
+                setLoadingUI(true);
+
+                // Simpan waktu mulai untuk delay minimal
+                const startTime = Date.now();
+
+                try {
+                    // Fetch ke API
+                    const fetchPromise = fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: rawText, author: author })
+                    });
+
+                    // Jalankan dengan minimal delay 2 detik (2000ms)
+                    const response = await withMinDelay(fetchPromise, 2000);
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.error || `Gagal generate: ${response.status}`);
+                    }
+
+                    const imageBlob = await response.blob();
+                    if (!imageBlob.type.includes('jpeg') && !imageBlob.type.includes('image')) {
+                        throw new Error('Respon bukan gambar valid');
+                    }
+                    
+                    // Pastikan total durasi dari mulai tombol ditekan sampai gambar muncul minimal 2 detik (sudah dijamin withMinDelay)
+                    displayImage(imageBlob);
+                } catch (err) {
+                    console.error(err);
+                    alert(`⚠️ Terjadi kesalahan: ${err.message || 'Coba lagi nanti'}`);
+                    resetPreview(); // kembali ke placeholder
+                } finally {
+                    setLoadingUI(false);
+                }
+            }
+
+            function downloadImage() {
+                if (!currentImageBlob) return;
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(currentImageBlob);
+                link.href = url;
+                link.download = `quote_${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            async function shareQuote() {
+                if (!currentImageBlob) return;
+                const shareData = {
+                    title: 'Kutipan Inspiratif',
+                    text: `"${quoteTextarea.value.slice(0, 100)}" — ${authorInput.value || 'Someone'}`,
+                    url: window.location.href,
+                };
+                if (navigator.share) {
+                    try {
+                        const file = new File([currentImageBlob], 'quote.jpg', { type: 'image/jpeg' });
+                        await navigator.share({ ...shareData, files: [file] });
+                        return;
+                    } catch (e) {
+                        if (e.name !== 'AbortError') console.warn('Share failed', e);
+                        try { await navigator.share(shareData); return; } catch (_) {}
+                    }
+                }
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ [currentImageBlob.type]: currentImageBlob })
+                    ]);
+                    alert('✨ Gambar berhasil disalin ke clipboard! Anda bisa membagikannya langsung.');
+                } catch (clipErr) {
+                    alert('💡 Bagikan gambar dengan mengunduh terlebih dahulu, lalu kirim ke temanmu.');
+                    downloadImage();
+                }
+            }
+
+            generateBtn.addEventListener('click', generateQuoteImage);
+            downloadBtn.addEventListener('click', downloadImage);
+            shareBtn.addEventListener('click', shareQuote);
+
+            if (!quoteTextarea.value) {
+                quoteTextarea.value = "Hidup itu hanya [satu] [kali] jadi berusahalah menjadi [orang] [yang] [baik] .";
+            }
+        })();
+    </script>
+</body>
+</html>
